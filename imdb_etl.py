@@ -30,11 +30,14 @@ review_response = get_all_images_res.json()
 images_dict = {}
 
 for image in review_response.get('resource')['images']:
-	images_dict[image.get('id')] = {"caption" : image.get('caption'),
+	images_dict[image.get('id').split('/')[-1]] = {"caption" : image.get('caption'),
 	"created_on" : image.get('createdOn'),
 	"url" : image.get('url'),
 	"name" : image.get('relatedNames')[0]['name']}
-	break
+
 # print(review_response.get('@meta')['requestId'])
-print(json.dumps(images_dict,  indent=4))
-# pprint.PrettyPrinter(indent = 4).pprint(images_dict)
+# print(json.dumps(images_dict,  indent=4))
+
+
+with open('images_dict.json', 'w') as f:
+	json.dump(images_dict,f)
