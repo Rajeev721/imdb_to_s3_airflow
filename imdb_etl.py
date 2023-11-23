@@ -37,6 +37,8 @@ def rapid_api_etl():
 		querystring = {"tconst":"tt0944947"}
 		get_all_images_res = requests.get(get_all_images_url, headers=headers, params= querystring)
 
+		print(get_all_images_res.status_code)
+
 
 		review_response = get_all_images_res.json()
 
@@ -46,13 +48,19 @@ def rapid_api_etl():
 			images_dict[image.get('id').split('/')[-1]] = {"caption" : image.get('caption'),
 			"created_on" : image.get('createdOn'),
 			"url" : image.get('url'),
-			"name" : image.get('relatedNames')[0]['name']}
+			"name" : image.get('relatedNames')[0]['name'] if image.get('relatedNames') else ""}
+		
+		# print(images_dict)
+		session = boto3.Session(profile_name='rajeev')
+		s3 = session.client('s3')
+		res = s3.put_object(Bucket='rajeevlearning', Key = 'landing/images_dict.json', Body = json.dumps(images_dict))
+		# print(res)
 
 		# print(review_response.get('@meta')['requestId'])
 		# print(json.dumps(images_dict,  indent=4))
+		# with open('images_dict.json', 'w') as f:
+		# 	json.dump(images_dict,f)
+	except Exception as e:
+		print(e)
 
-
-		with open('s3://rajeevlearning/landing/images_dict.json', 'w') as f:
-			json.dump(images_dict,f)
-	except Exception:
-		print(Exception)
+rapid_api_etl()
